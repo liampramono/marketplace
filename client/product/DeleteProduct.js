@@ -5,27 +5,27 @@ import Button from 'material-ui/Button'
 import DeleteIcon from 'material-ui-icons/Delete'
 import Dialog, {DialogActions, DialogContent, DialogContentText, DialogTitle} from 'material-ui/Dialog'
 import auth from './../auth/auth-helper'
-import {remove} from './api-user.js'
-import {Redirect, Link} from 'react-router-dom'
+import {remove} from './api-product.js'
 
-class DeleteUser extends Component {
+class DeleteProduct extends Component {
   state = {
-    redirect: false,
     open: false
   }
   clickButton = () => {
     this.setState({open: true})
   }
-  deleteAccount = () => {
+  deleteProduct = () => {
     const jwt = auth.isAuthenticated()
     remove({
-      userId: this.props.userId
+      shopId: this.props.shopId,
+      productId: this.props.product._id
     }, {t: jwt.token}).then((data) => {
       if (data.error) {
         console.log(data.error)
       } else {
-        auth.signout(() => console.log('deleted'))
-        this.setState({redirect: true})
+        this.setState({open: false}, () => {
+          this.props.onRemove(this.props.product)
+        })
       }
     })
   }
@@ -33,27 +33,22 @@ class DeleteUser extends Component {
     this.setState({open: false})
   }
   render() {
-    const redirect = this.state.redirect
-    if (redirect) {
-      return <Redirect to='/'/>
-    }
     return (<span>
       <IconButton aria-label="Delete" onClick={this.clickButton} color="secondary">
         <DeleteIcon/>
       </IconButton>
-
       <Dialog open={this.state.open} onClose={this.handleRequestClose}>
-        <DialogTitle>{"Delete Account"}</DialogTitle>
+        <DialogTitle>{"Delete "+this.props.product.name}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Confirm to delete your account.
+            Confirm to delete your product {this.props.product.name}.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={this.handleRequestClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={this.deleteAccount} color="secondary" autoFocus="autoFocus">
+          <Button onClick={this.deleteProduct} color="secondary" autoFocus="autoFocus">
             Confirm
           </Button>
         </DialogActions>
@@ -61,7 +56,9 @@ class DeleteUser extends Component {
     </span>)
   }
 }
-DeleteUser.propTypes = {
-  userId: PropTypes.string.isRequired
+DeleteProduct.propTypes = {
+  shopId: PropTypes.string.isRequired,
+  product: PropTypes.object.isRequired,
+  onRemove: PropTypes.func.isRequired
 }
-export default DeleteUser
+export default DeleteProduct

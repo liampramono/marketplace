@@ -1,12 +1,11 @@
-import config from './../../config/config'
-const create = (user) => {
-  return fetch('/api/users/', {
+const create = (params, credentials, shop) => {
+  return fetch('/api/shops/by/'+ params.userId, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Authorization': 'Bearer ' + credentials.t
       },
-      body: JSON.stringify(user)
+      body: shop
     })
     .then((response) => {
       return response.json()
@@ -14,42 +13,52 @@ const create = (user) => {
 }
 
 const list = () => {
-  return fetch('/api/users/', {
+  return fetch('/api/shops', {
     method: 'GET',
   }).then(response => {
     return response.json()
   }).catch((err) => console.log(err))
 }
 
-const read = (params, credentials) => {
-  return fetch('/api/users/' + params.userId, {
+const listByOwner = (params, credentials) => {
+  return fetch('/api/shops/by/'+params.userId, {
     method: 'GET',
     headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + credentials.t
     }
   }).then((response) => {
     return response.json()
-  }).catch((err) => console.log(err))
+  }).catch((err) => {
+    console.log(err)
+  })
 }
 
-const update = (params, credentials, user) => {
-  return fetch('/api/users/' + params.userId, {
-    method: 'PUT',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + credentials.t
-    },
-    body: JSON.stringify(user)
+const read = (params, credentials) => {
+  return fetch('/api/shop/' + params.shopId, {
+    method: 'GET'
   }).then((response) => {
     return response.json()
   }).catch((err) => console.log(err))
 }
 
+const update = (params, credentials, shop) => {
+  return fetch('/api/shops/' + params.shopId, {
+    method: 'PUT',
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer ' + credentials.t
+    },
+    body: shop
+  }).then((response) => {
+    return response.json()
+  }).catch((err) => {
+    console.log(err)
+  })
+}
+
 const remove = (params, credentials) => {
-  return fetch('/api/users/' + params.userId, {
+  return fetch('/api/shops/' + params.shopId, {
     method: 'DELETE',
     headers: {
       'Accept': 'application/json',
@@ -57,20 +66,6 @@ const remove = (params, credentials) => {
       'Authorization': 'Bearer ' + credentials.t
     }
   }).then((response) => {
-    return response.json()
-  }).catch((err) => console.log(err))
-}
-
-const stripeUpdate = (params, credentials, auth_code) => {
-  return fetch('/api/stripe_auth/'+params.userId, {
-    method: 'PUT',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + credentials.t
-    },
-    body: JSON.stringify({stripe: auth_code})
-  }).then((response)=> {
     return response.json()
   }).catch((err) => {
     console.log(err)
@@ -80,8 +75,8 @@ const stripeUpdate = (params, credentials, auth_code) => {
 export {
   create,
   list,
+  listByOwner,
   read,
   update,
-  remove,
-  stripeUpdate
+  remove
 }
